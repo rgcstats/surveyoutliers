@@ -1,0 +1,9 @@
+Package: surveyoutliers
+Type: Package
+Title: Various procedures to deal with outliers in survey data. 
+Version: 0.1
+Date: 2015-12-14
+Authors@R: person("Robert", "Clark", , "rclark@uow.edu.au", role = "cre")
+Description: At present, the only functionality is the calculation of optimal one-sided winsorizing cutoffs.
+License: GPL-2 | GPL-3
+LazyData: TRUE
