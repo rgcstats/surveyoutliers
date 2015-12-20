@@ -6,6 +6,7 @@ This package contains various procedures to deal with outliers in survey data. T
 ### Installation
 
 ``` r
+library(devtools)
 devtools::install_github("rgcstats/surveyoutliers")
 ```
 
