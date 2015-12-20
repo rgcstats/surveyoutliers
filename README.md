@@ -20,3 +20,9 @@ plot(test$windata$y,test$windata$win1.values)
 ```
 
 ![](README-unnamed-chunk-2-1.png)
+
+#### References
+
+Clark, R. G. (1995), "Winsorisation methods in sample surveys," Masters thesis, Australian National University, <http://hdl.handle.net/10440/1031>.
+
+Kokic, P. and Bell, P. (1994), "Optimal winsorizing cutoffs for a stratified finite population estimator," J. Off. Stat., 10, 419-435.
