@@ -16,7 +16,7 @@ devtools::install_github("rgcstats/surveyoutliers")
 library(surveyoutliers)
 # The dataset test contains a variable of interest y, and generalized regression
 #  weights regwt, inverse probabilities of selection piwt
-# The following code calculates the optimal tuning parameter and hence winsorised values via optimal.onesided.cutoff().
+# The following code calculates the optimal tuning parameter and hence winsorised values.
 test <- optimal.onesided.cutoff(formula=y~x1+x2,surveydata=survdat.example)
 # Show the results by plotting the winsorised vs the raw values of the variable of interest:
 plot(test$windata$y,test$windata$win1.values)
