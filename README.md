@@ -1,9 +1,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-**NOTE: This package contains various procedures to deal with outliers in survey data.**
-
 ### surveyoutliers
 
-The only method available at present is to calculate optimal winsorising cutoffs as described in Kokic and Bell (1994) and Clark (1995).
+This package contains various procedures to deal with outliers in survey data. The only method available at present is to calculate optimal winsorising cutoffs as described in Kokic and Bell (1994) and Clark (1995).
 
 ### Installation
 
