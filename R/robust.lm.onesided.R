@@ -1,8 +1,9 @@
-#' robust.lm.onesided
+#' Robust Regression using One-Sided Huber Function
 #'
 #' This function performs robust regression using M-estimation
 #' using the one-sided Huber function, with residuals truncated at Q / (data$gregwt-1)
-#' where data$gregwt is the generalized regression weight
+#' where data$gregwt is the generalized regression weight.
+#'
 #' @param formula The regression formula (e.g. income ~ employment + old.turnover if income is survey variable and employment and old.turnover are auxiliary variables).
 #' @param data A data frame including the variables in formula, and gregwt (generalized regression estimator weight), and regwt (weight to be used in regression - will be set to 1 if missing).
 #' @param Q The tuning parameter where large Q corresponds to no outlier treatment, and small Q corresponds to many outliers being flagged.
@@ -21,18 +22,20 @@
 
 robust.lm.onesided <- function( formula , data , Q , Qname , maxit=100,stop=F){
   if(stop) browser()
+  irls.w <- NA
   y <- data[,as.character(formula)[2]]
   if(!missing(Qname)) Q <- data[,Qname]
   if(!("regwt" %in% names(data))) data$regwt <- 1
   robust.resid <- (y-median(y))/(1.483*(quantile(y,probs=0.75)-quantile(y,probs=0.25)))
-  data$irls.w <- pmin(robust.resid,2) / robust.resid / data$regwt
+  #data$irls.w <- pmin(robust.resid,2) / robust.resid * data$regwt
+  data$irls.w <- data$regwt
+  data$irls.w[robust.resid>2] <- 2 / robust.resid[robust.resid>2] * data$regwt[robust.resid>2]
   old.beta <- rep(0,(length(as.character(formula))-2))
   delta <- 1
   iter <- 1
   while((iter<=100)&(delta>=1e-6)){
     wfit <- lm(formula=formula,data=data,weights=irls.w)
-    #cutoffs <- wfit$fitted.values + Q / (data$gregwt-1)
-    data$irls.w <- pmin( y - wfit$fitted.values , Q / (data$gregwt-1) ) / ( y - wfit$fitted.values ) / data$regwt
+    data$irls.w <- pmin( y - wfit$fitted.values , Q / (data$gregwt-1) ) / ( y - wfit$fitted.values ) * data$regwt
     delta <- sqrt(sum((wfit$coef-old.beta)^2))
     old.beta <- wfit$coef
     iter <- iter+1

@@ -1,8 +1,8 @@
-#' optimal.onesided.cutoff
+#' Optimal one-sided winsorization for survey outliers
 #'
-#' This function calculates optimal one-sided cutoffs for winsorization
-#' where regression residuals are truncated at Q / (weight-1)
-#' and Q satisfies the optimality result in Kokic and Bell (1994) and Clark (1995).
+#' This function calculates optimal tuning parameter, cutoffs, and
+#' winsorized values for one-sided winsorization.
+#'
 #' @param formula The regression formula (e.g. income ~ employment + old.turnover if income is survey variable and employment and old.turnover are auxiliary variables).
 #' @param surveydata A data frame of the survey data including the variables in formula, piwt (inverse probability of selection),
 #'        gregwt (generalized regression estimator weight) and regwt (weight to be used in regression - will be set to 1 if missing).
@@ -13,11 +13,15 @@
 #' @param estimated.means.name The variable of this name in surveydata should contain an estimator of the expected values for each sample value of the variable of interest.
 #'  If set to "", the regression model is estimated using IRLS.
 #' @param stop Set to T to open a browser window (for debugging purposes)
+#' @details
+#' This function calculates optimal one-sided cutoffs for winsorization
+#' where regression residuals are truncated at Q / (generalized_regression_estimator_weight-1)
+#' and Q satisfies the optimality result in Kokic and Bell (1994) and Clark (1995).
 #' @return A list consisting of Q.opt (the optimal Q), rlm.coef (the robust regression coefficients),
 #'  windata which is a dataset containing the same observations and variables as surveydata in the same order, with additional variables
 #'   cutoffs (the winsorizing cutoffs for each unit in sample), y (the values of the variable of interest),
 #'   win1.values (the type 1 winsorized values of interest, i.e. the minimums of the cutoff and y) and
-#'   win2.values (the type 2 winsorized values of interest, so that sum(surveydata$gregwt*win2.values) is the winsorized estimator)
+#'   win2.values (the type 2 winsorized values of interest, so that sum(surveydata$gregwt*win2.values) is the winsorized estimator.
 #' @references
 #' Clark, R. G. (1995), "Winsorisation methods in sample surveys," Masters thesis, Australian National University, http://hdl.handle.net/10440/1031.
 #'
@@ -29,11 +33,14 @@
 optimal.onesided.cutoff <- function(formula,surveydata,historical.reweight=1,estimated.means.name="",stop=F){
   # firstly define the function to be zeroed numerically
   if(stop) browser()
+  estimated.means <- NULL
+  piwt <- NA
   formula.items <- as.character(formula)
   y <- surveydata[,formula.items[2]]
   surveydata$y <- y
-  diff.fn <- function(Q,formula,surveydata,estimated.means,return.all=F,stop=F){
+  diff.fn <- function(Q,formula,surveydata,estimated.means.name,return.all=F,stop=F){
     if(stop) browser()
+    rlm.results <- NULL
     if(estimated.means.name==""){
       rlm.results <- robust.lm.onesided( formula=formula , Q=Q , data=surveydata ,maxit=500 )
       estimated.means <- rlm.results$fitted.values
@@ -47,9 +54,11 @@ optimal.onesided.cutoff <- function(formula,surveydata,historical.reweight=1,est
     if(return.all) out <- list( diff=Q+bias.est , rlm.results=rlm.results , lm.results=lm.results , Q=Q )
     out
   }
-  Q.opt <- uniroot( f=diff.fn , formula=formula , surveydata=surveydata , estimated.means=estimated.means ,
-                    interval=pmax(0.0001,range((y-median(y))*(surveydata$gregwt-1))) , return.all=F )$root
-  full.results <- diff.fn( Q=Q.opt , formula=formula , surveydata=surveydata , return.all=T )
+  Q.opt <- uniroot( f=diff.fn, formula=formula , surveydata=surveydata,
+                    estimated.means.name=estimated.means.name ,
+                    interval=pmax(0.0001,range((y-median(y))*(surveydata$gregwt-1))),
+                    return.all=FALSE)$root
+  full.results <- diff.fn( Q=Q.opt , formula=formula , surveydata=surveydata, estimated.means.name="", return.all=T )
   windata <- surveydata
   windata$cutoffs <- full.results$rlm.results$fitted.values + Q.opt / (surveydata$gregwt-1)
   windata$win1.values <- pmin(y,windata$cutoffs)

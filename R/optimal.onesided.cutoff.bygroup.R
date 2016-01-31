@@ -1,5 +1,9 @@
-#' optimal.onesided.cutoff.bygroup
+#' Optimal one-sided winsorization for survey outliers by group
 #'
+#' This function calculates optimal tuning parameter, cutoffs, and
+#' winsorized values for one-sided winsorization, by group.
+#'
+#' @details
 #' This function calculates optimal one-sided cutoffs for winsorization
 #' where regression residuals are truncated at Q / (weight-1)
 #' and Q satisfies the optimality result in Kokic and Bell (1994) and Clark (1995).
@@ -10,6 +14,7 @@
 #' The default value of 1 should be used if the sample being used for optimising Q is the
 #' same sample (or at least the same design) as the sample to which the winsorizing cutoffs are to be applied.
 #' @param groupname The variable of this name in surveydata defines the groups for which Q is to be optimised.
+#' If groupname is missing, it is assumed that cutoffs are to be optimised for the overall mean or total.
 #' @param estimated.means.name The variable of this name in surveydata should contain an estimator of the expected values for each sample value of the variable of interest.
 #'  If set to "", the regression model is estimated using IRLS.
 #' @param stop Set to T to open a browser window (for debugging purposes)
@@ -29,6 +34,10 @@
 optimal.onesided.cutoff.bygroup <- function(formula,surveydata,historical.reweight=1,groupname,estimated.means.name="",stop=F){
   if(stop) browser()
   surveydata$ID <- c(1:nrow(surveydata))
+  if(missing(groupname)){
+    groupname <- "dummy"
+    surveydata$dummy <- 1
+  }
   windata <- NULL
   Qopt <- NULL
   for(g in sort(unique(surveydata[,groupname]))){

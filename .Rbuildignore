@@ -4,3 +4,8 @@
 ^data-raw$
 ^README\.Rmd$
 ^README-*\.png$
+^README-unnamed-chunk-2-1.png
+^surveyoutliers.R
+^README\.md$
+^cran-comments.md
+^.Rprofile
