@@ -33,7 +33,7 @@ robust.lm.onesided <- function( formula , data , Q , Qname , maxit=100,stop=F){
   old.beta <- rep(0,(length(as.character(formula))-2))
   delta <- 1
   iter <- 1
-  while((iter<=100)&(delta>=1e-6)){
+  while((iter<=maxit)&(delta>=1e-6)){
     wfit <- lm(formula=formula,data=data,weights=irls.w)
     data$irls.w <- pmin( y - wfit$fitted.values , Q / (data$gregwt-1) ) / ( y - wfit$fitted.values ) * data$regwt
     delta <- sqrt(sum((wfit$coef-old.beta)^2))

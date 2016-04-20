@@ -12,6 +12,7 @@
 #' same sample (or at least the same design) as the sample to which the winsorizing cutoffs are to be applied.
 #' @param estimated.means.name The variable of this name in surveydata should contain an estimator of the expected values for each sample value of the variable of interest.
 #'  If set to "", the regression model is estimated using IRLS.
+#' @param maxit The maximum number of iterations.
 #' @param stop Set to T to open a browser window (for debugging purposes)
 #' @details
 #' This function calculates optimal one-sided cutoffs for winsorization
@@ -30,7 +31,8 @@
 #' test <- optimal.onesided.cutoff(formula=y~x1+x2,surveydata=survdat.example)
 #' plot(test$windata$y,test$windata$win1.values)
 
-optimal.onesided.cutoff <- function(formula,surveydata,historical.reweight=1,estimated.means.name="",stop=F){
+optimal.onesided.cutoff <- function(formula,surveydata,historical.reweight=1,
+                                    estimated.means.name="",maxit=100,stop=F){
   # firstly define the function to be zeroed numerically
   if(stop) browser()
   estimated.means <- NULL
@@ -38,7 +40,8 @@ optimal.onesided.cutoff <- function(formula,surveydata,historical.reweight=1,est
   formula.items <- as.character(formula)
   y <- surveydata[,formula.items[2]]
   surveydata$y <- y
-  diff.fn <- function(Q,formula,surveydata,estimated.means.name,return.all=F,stop=F){
+  diff.fn <- function(Q,formula,surveydata,estimated.means.name,
+                      return.all=F,maxit=maxit,stop=F){
     if(stop) browser()
     rlm.results <- NULL
     if(estimated.means.name==""){
@@ -58,7 +61,8 @@ optimal.onesided.cutoff <- function(formula,surveydata,historical.reweight=1,est
                     estimated.means.name=estimated.means.name ,
                     interval=pmax(0.0001,range((y-median(y))*(surveydata$gregwt-1))),
                     return.all=FALSE)$root
-  full.results <- diff.fn( Q=Q.opt , formula=formula , surveydata=surveydata, estimated.means.name="", return.all=T )
+  full.results <- diff.fn( Q=Q.opt , formula=formula , surveydata=surveydata,
+                           estimated.means.name="", return.all=T , maxit=maxit )
   windata <- surveydata
   windata$cutoffs <- full.results$rlm.results$fitted.values + Q.opt / (surveydata$gregwt-1)
   windata$win1.values <- pmin(y,windata$cutoffs)

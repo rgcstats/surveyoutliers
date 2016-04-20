@@ -5,7 +5,7 @@
 \title{Optimal one-sided winsorization for survey outliers}
 \usage{
 optimal.onesided.cutoff(formula, surveydata, historical.reweight = 1,
-  estimated.means.name = "", stop = F)
+  estimated.means.name = "", maxit = 100, stop = F)
 }
 \arguments{
 \item{formula}{The regression formula (e.g. income ~ employment + old.turnover if income is survey variable and employment and old.turnover are auxiliary variables).}
@@ -20,6 +20,8 @@ same sample (or at least the same design) as the sample to which the winsorizing
 
 \item{estimated.means.name}{The variable of this name in surveydata should contain an estimator of the expected values for each sample value of the variable of interest.
 If set to "", the regression model is estimated using IRLS.}
+
+\item{maxit}{The maximum number of iterations.}
 
 \item{stop}{Set to T to open a browser window (for debugging purposes)}
 }
